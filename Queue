@@ -1,0 +1,85 @@
+#include <iostream>
+#define MAX_SIZE 100
+
+class Node {
+public:
+    int data;
+    Node* next;
+
+    Node(int value) : data(value), next(nullptr) {}
+};
+
+class QueueLinkedList {
+private:
+    Node* front;
+    Node* rear;
+
+public:
+    QueueLinkedList() : front(nullptr), rear(nullptr) {}
+
+    bool isEmpty() {
+        return front == nullptr;
+    }
+
+    void enqueue(int value) {
+        Node* newNode = new Node(value);
+
+        if (isEmpty()) {
+            front = rear = newNode;
+        } else {
+            rear->next = newNode;
+            rear = newNode;
+        }
+    }
+
+    int dequeue() {
+        if (isEmpty()) {
+            std::cout << "Queue is empty\n";
+            return -1;
+        }
+
+        int value = front->data;
+        Node* temp = front;
+
+        if (front == rear) {
+            front = rear = nullptr;
+        } else {
+            front = front->next;
+        }
+
+        delete temp;
+        return value;
+    }
+
+    void display() {
+        if (isEmpty()) {
+            std::cout << "Queue is empty\n";
+            return;
+        }
+
+        std::cout << "Queue elements: ";
+        Node* temp = front;
+        while (temp) {
+            std::cout << temp->data << " ";
+            temp = temp->next;
+        }
+
+        std::cout << "\n";
+    }
+};
+
+int main() {
+    QueueLinkedList queue;
+
+    queue.enqueue(1);
+    queue.enqueue(2);
+    queue.enqueue(3);
+
+    queue.display();
+
+    std::cout << "Dequeued element: " << queue.dequeue() << std::endl;
+
+    queue.display();
+
+    return 0;
+}
