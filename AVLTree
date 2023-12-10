@@ -1,0 +1,159 @@
+#include <iostream>
+#include <algorithm>
+
+class Node {
+public:
+    int key;
+    int height;
+    Node* left;
+    Node* right;
+
+    Node(int value) : key(value), height(1), left(nullptr), right(nullptr) {}
+};
+
+class AVLTree {
+private:
+    Node* root;
+
+    int getHeight(Node* node) {
+        if (node == nullptr) {
+            return 0;
+        }
+        return node->height;
+    }
+
+    int getBalanceFactor(Node* node) {
+        if (node == nullptr) {
+            return 0;
+        }
+        return getHeight(node->left) - getHeight(node->right);
+    }
+
+    Node* rightRotate(Node* y) {
+        Node* x = y->left;
+        Node* T2 = x->right;
+
+        // Perform rotation
+        x->right = y;
+        y->left = T2;
+
+        // Update heights
+        y->height = 1 + std::max(getHeight(y->left), getHeight(y->right));
+        x->height = 1 + std::max(getHeight(x->left), getHeight(x->right));
+
+        // Return new root
+        return x;
+    }
+
+    Node* leftRotate(Node* x) {
+        Node* y = x->right;
+        Node* T2 = y->left;
+
+        // Perform rotation
+        y->left = x;
+        x->right = T2;
+
+        // Update heights
+        x->height = 1 + std::max(getHeight(x->left), getHeight(x->right));
+        y->height = 1 + std::max(getHeight(y->left), getHeight(y->right));
+
+        // Return new root
+        return y;
+    }
+
+    Node* insert(Node* node, int key) {
+        // Perform the normal BST insertion
+        if (node == nullptr) {
+            return new Node(key);
+        }
+
+        if (key < node->key) {
+            node->left = insert(node->left, key);
+        } else if (key > node->key) {
+            node->right = insert(node->right, key);
+        } else {
+            // Duplicate keys are not allowed in AVL trees
+            return node;
+        }
+
+        // Update height of current node
+        node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
+
+        // Get the balance factor
+        int balance = getBalanceFactor(node);
+
+        // Left Left Case
+        if (balance > 1 && key < node->left->key) {
+            return rightRotate(node);
+        }
+
+        // Right Right Case
+        if (balance < -1 && key > node->right->key) {
+            return leftRotate(node);
+        }
+
+        // Left Right Case
+        if (balance > 1 && key > node->left->key) {
+            node->left = leftRotate(node->left);
+            return rightRotate(node);
+        }
+
+        // Right Left Case
+        if (balance < -1 && key < node->right->key) {
+            node->right = rightRotate(node->right);
+            return leftRotate(node);
+        }
+
+        // No rotation needed
+        return node;
+    }
+
+    void display(Node* root, int space) {
+        if (root == nullptr) {
+            return;
+        }
+
+        // Increase distance between levels
+        space += 5;
+
+        // Process right child first
+        display(root->right, space);
+
+        // Print current node after space
+        std::cout << std::endl;
+        for (int i = 5; i < space; i++) {
+            std::cout << " ";
+        }
+        std::cout << root->key << "\n";
+
+        // Process left child
+        display(root->left, space);
+    }
+
+public:
+    AVLTree() : root(nullptr) {}
+
+    void insert(int key) {
+        root = insert(root, key);
+    }
+
+    void display() {
+        display(root, 0);
+    }
+};
+
+int main() {
+    AVLTree avl;
+
+    // Inserting elements
+    avl.insert(30);
+    avl.insert(20);
+    avl.insert(40);
+    avl.insert(10);
+    avl.insert(25);
+
+    // Displaying the AVL tree
+    avl.display();
+
+    return 0;
+}
